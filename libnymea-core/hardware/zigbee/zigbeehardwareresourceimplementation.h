@@ -28,59 +28,60 @@
 *
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#ifndef HARDWAREMANAGERIMPLEMENTATION_H
-#define HARDWAREMANAGERIMPLEMENTATION_H
+#ifndef ZIGBEEHARDWARERESOURCEIMPLEMENTATION_H
+#define ZIGBEEHARDWARERESOURCEIMPLEMENTATION_H
 
 #include <QObject>
-#include <QDBusConnection>
-#include <QNetworkAccessManager>
 
-#include "hardwaremanager.h"
+#include "zigbee/zigbeemanager.h"
+#include "hardware/zigbee/zigbeehardwareresource.h"
 
 namespace nymeaserver {
 
-class Platform;
-class MqttBroker;
-class ZigbeeManager;
-class ZigbeeHardwareResourceImplementation;
-
-class HardwareManagerImplementation : public HardwareManager
+class ZigbeeHardwareResourceImplementation : public ZigbeeHardwareResource
 {
     Q_OBJECT
 
 public:
-    explicit HardwareManagerImplementation(Platform *platform, MqttBroker *mqttBroker, ZigbeeManager *zigbeeManager, QObject *parent = nullptr);
-    ~HardwareManagerImplementation() override;
+    explicit ZigbeeHardwareResourceImplementation(ZigbeeManager *zigbeeManager, QObject *parent = nullptr);
 
-    Radio433 *radio433() override;
-    PluginTimerManager *pluginTimerManager() override;
-    NetworkAccessManager *networkManager() override;
-    UpnpDiscovery *upnpDiscovery() override;
-    PlatformZeroConfController *zeroConfController() override;
-    BluetoothLowEnergyManager *bluetoothLowEnergyManager() override;
-    MqttProvider *mqttProvider() override;
-    I2CManager *i2cManager() override;
-    ZigbeeHardwareResource *zigbeeResource() override;
+    bool available() const override;
+    bool enabled() const override;
+
+    void registerHandler(ZigbeeHandler *handler, HandlerType type = HandlerTypeVendor) override;
+
+    ZigbeeNode* claimNode(ZigbeeHandler *handler, const QUuid &networkUuid, const ZigbeeAddress &extendedAddress) override;
+    void removeNodeFromNetwork(const QUuid &networkUuid, ZigbeeNode *node) override;
+
+    ZigbeeNetwork::State networkState(const QUuid &networkUuid) override;
 
 public slots:
+    bool enable();
+    bool disable();
+
     void thingsLoaded();
 
+protected:
+    void setEnabled(bool enabled) override;
+
+private slots:
+    void onZigbeeAvailableChanged(bool available);
+    void onZigbeeNetworkChanged(ZigbeeNetwork *network);
+    void onZigbeeNodeAdded(const QUuid &networkUuid, ZigbeeNode *node);
+    void onZigbeeNodeRemoved(const QUuid &networkUuid, ZigbeeNode *node);
+
 private:
-    QNetworkAccessManager *m_networkAccessManager = nullptr;
+    bool m_available = false;
+    bool m_enabled = false;
+    ZigbeeManager *m_zigbeeManager = nullptr;
 
-    Platform *m_platform = nullptr;
+    QMultiMap<ZigbeeHardwareResource::HandlerType, ZigbeeHandler*> m_handlers;
 
-    // Hardware Resources
-    PluginTimerManager *m_pluginTimerManager = nullptr;
-    Radio433 *m_radio433 = nullptr;
-    NetworkAccessManager *m_networkManager = nullptr;
-    UpnpDiscovery *m_upnpDiscovery = nullptr;
-    BluetoothLowEnergyManager *m_bluetoothLowEnergyManager = nullptr;
-    MqttProvider *m_mqttProvider = nullptr;
-    I2CManager *m_i2cManager = nullptr;
-    ZigbeeHardwareResourceImplementation *m_zigbeeResource = nullptr;
+    bool m_thingsLoaded = false;
+    QHash<ZigbeeNode*, ZigbeeHandler*> m_nodeHandlers;
+
 };
 
 }
 
-#endif // HARDWAREMANAGERIMPLEMENTATION_H
+#endif // ZIGBEEHARDWARERESOURCEIMPLEMENTATION_H
