@@ -242,9 +242,11 @@ Interface ThingUtils::loadInterface(const QString &name)
         foreach (const QVariant &actionParamVariant, actionVariant.toMap().value("params").toList()) {
             ParamType paramType;
             paramType.setName(actionParamVariant.toMap().value("name").toString());
+            qWarning() << "Loading" << iface.name() << "action" << actionType.name() << "param" << paramType.name();
             paramType.setType(QVariant::nameToType(actionParamVariant.toMap().value("type").toByteArray()));
             paramType.setAllowedValues(actionParamVariant.toMap().value("allowedValues").toList());
             paramType.setMinValue(actionParamVariant.toMap().value("min"));
+            paramType.setDefaultValue(actionParamVariant.toMap().value("defaultValue"));
             paramTypes.append(paramType);
         }
         actionType.setParamTypes(paramTypes);
@@ -264,6 +266,7 @@ Interface ThingUtils::loadInterface(const QString &name)
             paramType.setAllowedValues(eventParamVariant.toMap().value("allowedValues").toList());
             paramType.setMinValue(eventParamVariant.toMap().value("minValue"));
             paramType.setMaxValue(eventParamVariant.toMap().value("maxValue"));
+            paramType.setDefaultValue(eventParamVariant.toMap().value("defaultValue"));
             paramTypes.append(paramType);
         }
         eventType.setParamTypes(paramTypes);
