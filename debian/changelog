@@ -1,7 +1,24 @@
-nymea (0.25.0) UNRELEASED; urgency=medium
+nymea (0.25.0) xenial; urgency=medium
 
+  [ Michael Zanetti ]
+  * Don't log all state changes by default any more
+  * Add a command line argument for additional server interfaces
 
- -- Michael Zanetti <michael.zanetti@nymea.io>  Sun, 08 Nov 2020 18:08:29 +0100
+  [ Simon Stürz ]
+  * WIP: Zigbee hardware resource
+
+  [ Michael Zanetti ]
+  * Add state based value comparison in rules
+  * Allow second level domains in email addresses
+  * 0.25 version bump
+  * Drop the manually created -dbg package
+  * Add a note for including extern-plugininfo.h for plugin developers
+  * Improve parameter validation for interface actions and events
+  * Add paramValue() methods to Action and Event
+  * Simplify and extend media interfaces
+  * Fix state change signal
+
+ -- Jenkins <jenkins@nymea.io>  Mon, 23 Nov 2020 19:17:39 +0100
 
 nymea (0.24.0) xenial; urgency=medium
 
